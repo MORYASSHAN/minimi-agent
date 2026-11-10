@@ -1,0 +1,48 @@
+{
+  "name": "minimi-search-agent",
+  "version": "1.0.0",
+  "description": "A fast, honest chat agent with web search and dated, verifiable memory.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "concurrently -n db,api,web -c gray,cyan,magenta --kill-others-on-fail \"npm:dev:db\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:db": "tsx scripts/dev-db.ts",
+    "dev:api": "tsx watch --clear-screen=false server/index.ts --wait-for-db",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "vite build && tsx server/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "chrono-node": "^2.10.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0",
+    "luxon": "^3.7.2",
+    "mongodb-memory-server": "^11.3.0",
+    "mongoose": "^9.12.1",
+    "openai": "^7.55.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/luxon": "^3.7.6",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.7",
+    "vitest": "^5.1.0"
+  }
+}
