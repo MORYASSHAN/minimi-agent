@@ -3,10 +3,8 @@ import { topicTerms } from '../lib/text.js';
 import type { ConversationStore, TurnRecord } from './store.js';
 import { formatLocal, resolveTimeReferences, type TimeRange } from './temporal.js';
 
-/**
- * Strong cues talk about the conversation itself ("what did I ask", "you said", "last time").
- * Weak cues ("since", "earlier") only count when paired with a date ("since Monday").
- */
+// Strong cues refer to the conversation itself. Weak ones ("since", "earlier") only count
+// together with a date.
 const STRONG_CUES = [
   /\b(i|we)\s+(asked|said|told|mentioned|discussed|talked|shortlisted|shared|picked|chose|decided|compared|looked\s+(at|into)|researched|searched|went\s+through)\b/i,
   /\b(did|have|had)\s+(i|we)\s+(ask|say|tell|mention|discuss|talk|shortlist|share|pick|choose|decide|compare|look|research|search)/i,
@@ -37,11 +35,7 @@ export interface RecallResult {
 
 const NOT_TRIGGERED: RecallResult = { triggered: false, ranges: [], matches: [], nearby: [], memoryStart: null };
 
-/**
- * Deterministic episodic recall that runs before the model is called: no extra LLM
- * round-trip, and the model is told explicitly when nothing was found, which is what
- * stops it from inventing a past conversation.
- */
+// Runs before the model. An empty result is passed on too, so the model doesn't invent one.
 export class MemoryRecall {
   constructor(private readonly store: ConversationStore) {}
 

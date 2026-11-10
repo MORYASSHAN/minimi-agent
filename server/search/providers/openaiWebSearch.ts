@@ -6,12 +6,8 @@ const INSTRUCTIONS =
   'You are a search backend, not a chat assistant. Search the web for the query and report the most relevant facts as short ' +
   'bullet points, each with exact names, numbers and dates, citing the page each fact came from. No preamble, no advice.';
 
-/**
- * Fallback provider that needs no extra key: OpenAI's hosted web search via the Responses API.
- * Each query is one small Responses call; we keep only the cited pages and the sentence that
- * cites them, so the agent still sees ordinary numbered search results.
- * Slower and pricier per query than Tavily, which is why it sits last in the chain.
- */
+// Last-resort provider: OpenAI's hosted search, which needs no extra key.
+// Slower and pricier per query than Tavily.
 export class OpenAIWebSearchProvider implements SearchProvider {
   readonly name = 'openai';
   readonly returnsPageContent = true;

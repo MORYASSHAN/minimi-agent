@@ -1,8 +1,4 @@
-/**
- * Every date-relative feature ("last Tuesday", "since then") reads time from a Clock,
- * never from `new Date()` directly. That makes memory behaviour testable and lets
- * AGENT_NOW replay the app as if it were a different day.
- */
+// Date-relative code reads time from a Clock so tests and AGENT_NOW can pin it.
 export interface Clock {
   now(): Date;
 }

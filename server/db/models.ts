@@ -1,13 +1,7 @@
 import mongoose, { Schema, type InferSchemaType } from 'mongoose';
 
-/**
- * Two collections:
- *  - threads: a chat (sidebar entry)
- *  - turns:   one user question + the agent's answer, its sources, searches, and the
- *             "enrichment" written in the background (summary, topics, entities, claims).
- * A turn is the unit of episodic memory: it is what gets recalled, by date and by topic.
- * Timestamps come from the injected Clock, not Mongoose, so memory can be tested/replayed.
- */
+// threads: one per chat. turns: a question and its answer, plus what the background job
+// extracts later. createdAt comes from the Clock, not Mongoose, so tests can control it.
 
 const ThreadSchema = new Schema(
   {

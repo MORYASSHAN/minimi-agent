@@ -57,10 +57,7 @@ export type TurnPatch = Partial<
   Pick<TurnRecord, 'answer' | 'status' | 'sources' | 'citedSourceIds' | 'searches' | 'memory' | 'timings' | 'model'>
 >;
 
-/**
- * Persistence port. The agent and memory code depend on this interface only;
- * MongoStore implements it for production, tests use an in-memory fake.
- */
+// Storage interface: MongoStore in the app, an in-memory fake in tests.
 export interface ConversationStore {
   createThread(userId: string, title: string, at: Date): Promise<ThreadRecord>;
   getThread(userId: string, threadId: string): Promise<ThreadRecord | null>;

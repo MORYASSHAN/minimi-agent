@@ -25,10 +25,7 @@ export interface SearchOutcome {
 const PROVIDER_COOLDOWN_MS = 60_000;
 const PAGES_TO_READ = 4;
 
-/**
- * Runs all queries of one tool call in parallel, each through a provider fallback chain,
- * then merges, de-duplicates and (for deep searches) enriches results with page text.
- */
+// Runs a tool call's queries in parallel with provider fallback, then merges and de-duplicates.
 export class SearchService {
   private readonly cache = new TtlCache<SearchHit[]>(500, 10 * 60_000);
   private readonly cooldownUntil = new Map<string, number>();

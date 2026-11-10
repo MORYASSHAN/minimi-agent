@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { mustSearchFirst } from '../server/agent/searchPolicy.js';
+import { countWords } from '../server/config.js';
+
+const none = { triggered: false, found: false };
 
 describe('mustSearchFirst', () => {
   it.each([
@@ -8,19 +11,28 @@ describe('mustSearchFirst', () => {
     'Neon vs Supabase pricing',
     'What is the capital of Australia?',
     'tell me about the latest iPhone',
-  ])('searches for "%s"', (q) => expect(mustSearchFirst(q, false)).toBe(true));
+  ])('searches for "%s"', (q) => expect(mustSearchFirst(q, none)).toBe(true));
 
-  it.each(['hi', 'Hello!', 'thanks', 'ok 👍', 'good morning'])('skips small talk "%s"', (q) => expect(mustSearchFirst(q, false)).toBe(false));
+  it.each(['hi', 'Hello!', 'thanks', 'ok', 'good morning'])('skips small talk "%s"', (q) => expect(mustSearchFirst(q, none)).toBe(false));
 
-  it('answers pure memory questions from memory, but re-checks when asked about now', () => {
-    expect(mustSearchFirst('What did I ask you on 3 November?', true)).toBe(false);
-    expect(mustSearchFirst('What did I ask you on 3 November? Is your answer still correct today?', true)).toBe(true);
-    expect(mustSearchFirst('Last Tuesday I asked about Postgres hosting. Has any pricing changed since then?', true)).toBe(true);
+  it.each(['Rewrite this email to sound friendlier: ...', 'translate "good night" to Hindi', 'fix this ```const x = 1```', 'calculate 18% of 2400'])(
+    'leaves tasks on the user’s own text to the model: "%s"',
+    (q) => expect(mustSearchFirst(q, none)).toBe(false),
+  );
+
+  it('about a past chat we found: re-checks only when asked about now', () => {
+    const found = { triggered: true, found: true };
+    expect(mustSearchFirst('What did I ask you on 3 November?', found)).toBe(false);
+    expect(mustSearchFirst('What did I ask you on 3 November? Is your answer still correct today?', found)).toBe(true);
+    expect(mustSearchFirst('Last Tuesday I asked about Postgres hosting. Has any pricing changed since then?', found)).toBe(true);
+  });
+
+  it('about a past chat we do not have: the model decides (no aimless forced search)', () => {
+    expect(mustSearchFirst('What did I ask you on 3 November? Is your answer still correct today?', { triggered: true, found: false })).toBe(false);
   });
 });
 
-describe('countWords', async () => {
-  const { countWords } = await import('../server/config.js');
+describe('countWords', () => {
   it('counts whitespace-separated words', () => {
     expect(countWords('  who is   president of\nuganda ')).toBe(5);
     expect(countWords('sssss ss s')).toBe(3);

@@ -1,13 +1,8 @@
 import type { ChatMessage } from '../llm/types.js';
 import type { TurnRecord } from '../memory/store.js';
 
-/**
- * Replay earlier turns of this thread as plain user/assistant messages.
- * Raw search results are never replayed: they were only needed to write the answer,
- * and replaying them would multiply context cost every turn. Each answer keeps a short
- * list of the sources it cited, so its [n] markers stay meaningful.
- * Newest turns win when the character budget runs out.
- */
+// Earlier turns are replayed as answers plus the sources they cited, not the raw search
+// results. Newest turns win when the budget runs out.
 export function buildHistory(turns: TurnRecord[], charBudget: number): ChatMessage[] {
   const pairs: ChatMessage[][] = [];
   let used = 0;

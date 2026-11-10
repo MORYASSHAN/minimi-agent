@@ -57,13 +57,7 @@ const NO_SEARCH_NOTE =
 
 const ms = (since: number) => Math.round(performance.now() - since);
 
-/**
- * One chat turn, end to end:
- *   1. load thread + recall memory (deterministic, no LLM)
- *   2. tool loop: model decides to search -> parallel queries -> model answers (streamed)
- *   3. persist the turn, then enrich memory in the background
- * Emits AgentEvents as it goes; the HTTP layer just forwards them as SSE.
- */
+// One chat turn: recall, search/answer loop, save, then background enrichment.
 export class Agent {
   constructor(private readonly deps: AgentDeps) {}
 
@@ -110,7 +104,7 @@ export class Agent {
       { role: 'user', content: input.message },
     ];
     const tools = this.deps.search ? [webSearchSpec(settings.maxQueriesPerCall)] : undefined;
-    const searchFirst = !!tools && mustSearchFirst(input.message, recall.matches.length > 0);
+    const searchFirst = !!tools && mustSearchFirst(input.message, { triggered: recall.triggered, found: recall.matches.length > 0 });
     const today = DateTime.fromJSDate(now).setZone(tz).toISODate() ?? now.toISOString().slice(0, 10);
 
     const searches: SearchStep[] = [];

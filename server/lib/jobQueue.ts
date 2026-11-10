@@ -2,11 +2,7 @@ import type { Logger } from './logger.js';
 
 export type Job = { name: string; run: () => Promise<void> };
 
-/**
- * In-process background queue with bounded concurrency and retry.
- * Memory enrichment runs here so it never adds latency to an answer.
- * Interface is deliberately tiny so it can be replaced by BullMQ/SQS without touching callers.
- */
+// Small in-process queue (bounded concurrency, retries) for work that shouldn't delay an answer.
 export class JobQueue {
   private readonly pending: Array<Job & { attempt: number }> = [];
   private active = 0;

@@ -25,11 +25,7 @@ export function htmlToText(html: string): string {
     .join('\n');
 }
 
-/**
- * Query-focused extraction: split the page into ~500 char windows, score each by
- * query-term overlap (+ a bonus for numbers/currency, which is what "deep" searches are
- * usually after), and keep the best windows in page order.
- */
+// Keeps the ~500-character windows that best match the query (numbers score extra), in page order.
 export function selectPassages(text: string, query: string, budget = 2_400): string {
   const terms = topicTerms(query);
   const lines = text.split('\n');

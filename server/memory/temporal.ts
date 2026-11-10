@@ -17,16 +17,8 @@ export function isValidTimezone(tz: string | undefined): tz is string {
   return !!tz && DateTime.local().setZone(tz).isValid;
 }
 
-/**
- * Resolve past time references in a message into concrete ranges in the user's timezone.
- * Deterministic and ~0ms, so it runs before the model is called: "last Tuesday" becomes
- * [Tue 3 Nov 00:00, 23:59:59] Asia/Kolkata before any LLM sees the question.
- *
- * Rules on top of chrono:
- *  - Recall is about the past: a bare weekday in the future moves back a week,
- *    a day-month in the future moves back a year.
- *  - Granularity follows what the user said: "last week" is a week, "in October" a month.
- */
+// Turns past time references into ranges in the user's timezone. A match in the future is
+// moved back (a weekday by a week, a date by a year); "last week" is a week, "in October" a month.
 export function resolveTimeReferences(input: string, now: Date, timezone: string): TimeRange[] {
   // chrono reads "from 3 Nov" as "from 3 o'clock"; "on 3 Nov" parses as the date.
   const text = input.replace(/\b(from|since)\s+(?=\d{1,2}(?:st|nd|rd|th)?\s+[a-z]{3,})/gi, 'on ');
@@ -100,10 +92,7 @@ export function formatLocal(date: Date, timezone: string, withTime = true): stri
   return d.toFormat(withTime ? 'ccc d LLL yyyy, HH:mm' : 'ccc d LLL yyyy');
 }
 
-/**
- * A compact calendar of the last two weeks. Models are unreliable at weekday arithmetic;
- * giving them the mapping explicitly removes a whole class of "last Tuesday" errors.
- */
+// Weekday/date pairs for the prompt. Models are unreliable at weekday arithmetic.
 export function recentCalendar(now: Date, timezone: string, days = 14): string {
   const today = DateTime.fromJSDate(now).setZone(isValidTimezone(timezone) ? timezone : 'UTC').startOf('day');
   const out: string[] = [];

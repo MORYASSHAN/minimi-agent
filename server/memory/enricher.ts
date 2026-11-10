@@ -30,11 +30,7 @@ Return JSON with:
   with units and conditions as stated, source = the citation number the answer used for it, or null.
   Skip opinions, advice and facts that never change. Use an empty array if there are none.`;
 
-/**
- * Background memory writer. Runs after the answer has streamed, so it costs the user
- * no latency. Turns a free-text answer into a structured "claim ledger" that later
- * powers "is your answer still correct?" and topic-based recall.
- */
+// Runs after the answer is sent. Extracts a summary, topics and claims for later recall.
 export class TurnEnricher {
   constructor(
     private readonly store: ConversationStore,

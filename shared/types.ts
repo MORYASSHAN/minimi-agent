@@ -1,7 +1,4 @@
-/**
- * Wire contract between the API and the React client.
- * One file, imported by both sides, so the stream protocol can't drift.
- */
+// Types shared by the API and the client, including the SSE event stream.
 
 export interface Source {
   /** Citation number, unique within a thread so [n] stays valid across turns. */

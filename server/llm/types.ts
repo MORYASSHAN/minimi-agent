@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-/** OpenAI chat format is the lingua franca; these types are a structural subset of it. */
+/** Messages use the OpenAI chat format, which every compatible provider accepts. These types are a subset of it. */
 export interface ToolCall {
   id: string;
   type: 'function';

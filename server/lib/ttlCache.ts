@@ -1,8 +1,4 @@
-/**
- * Bounded LRU with per-entry TTL. Used for search results: repeated or parallel identical
- * queries inside a few minutes return instantly, but nothing goes stale for long.
- * Swap for Redis behind the same get/set shape when running more than one instance.
- */
+// LRU with a per-entry TTL. Used for search results.
 export class TtlCache<V> {
   private readonly map = new Map<string, { value: V; expires: number }>();
 

@@ -1,11 +1,8 @@
 import { DateTime } from 'luxon';
 import { recentCalendar } from '../memory/temporal.js';
 
-/**
- * Static part of the system prompt. Kept byte-identical across requests so providers
- * can cache the prefix (OpenAI caches prompts >1024 tokens automatically).
- * Everything that changes per request goes in a second system message after it.
- */
+// Kept identical across requests so the provider can cache it. Anything per-request
+// goes in a second system message.
 export const SYSTEM_PROMPT = `You are a research assistant with live web search. You talk like a sharp, friendly colleague: direct, warm, never padded.
 
 ## When to search

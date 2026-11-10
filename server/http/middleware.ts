@@ -4,10 +4,7 @@ import type { NextFunction, Request, Response } from 'express';
 const COOKIE = 'mid_uid';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/**
- * Anonymous identity: a random id in an httpOnly cookie. Every query is scoped by it,
- * so adding real auth later means replacing this one middleware.
- */
+// Anonymous user id in an httpOnly cookie. All data is scoped by it.
 export function identity(req: Request, res: Response, next: NextFunction) {
   let id = req.cookies?.[COOKIE] as string | undefined;
   if (!id || !UUID.test(id)) {

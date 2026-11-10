@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { HealthInfo } from '../shared/types';
 import { api } from './api';
-import { BRAND, Logo } from './brand';
+import { ArrowUpRight, BRAND, Logo, PORTFOLIO_URL } from './brand';
 import { Composer, type ComposerHandle } from './components/Composer';
-import { GlowGrid } from './components/GlowGrid';
 import { Home } from './components/Home';
 import { HowItWorks } from './components/HowItWorks';
 import { Sidebar } from './components/Sidebar';
@@ -21,10 +20,36 @@ export function App() {
   const composerRef = useRef<ComposerHandle>(null);
   const stick = useRef(true);
 
+  const [offline, setOffline] = useState(false);
+
   // Health also carries usage (messages left today), so refresh it after every answer.
   useEffect(() => {
-    if (!chat.busy) api.health().then(setHealth).catch(() => {});
+    if (!chat.busy)
+      api
+        .health()
+        .then((h) => {
+          setHealth(h);
+          setOffline(false);
+        })
+        .catch(() => setOffline(true));
   }, [chat.busy]);
+
+  // While the server is unreachable, check every few seconds and recover by itself.
+  const { refreshThreads } = chat;
+  useEffect(() => {
+    if (!offline) return;
+    const timer = setInterval(() => {
+      api
+        .health()
+        .then((h) => {
+          setHealth(h);
+          setOffline(false);
+          void refreshThreads();
+        })
+        .catch(() => {});
+    }, 4_000);
+    return () => clearInterval(timer);
+  }, [offline, refreshThreads]);
 
   const inThread = chat.turns.length > 0 || !!chat.threadId;
   const showHome = view === 'chat' && !inThread;
@@ -40,6 +65,13 @@ export function App() {
     goChat();
     requestAnimationFrame(() => composerRef.current?.focus());
   }, [chat, goChat]);
+
+  const openHow = () => {
+    setView('how');
+    setDrawer(false);
+    window.history.pushState(null, '', '#/how');
+    mainRef.current?.scrollTo({ top: 0 });
+  };
 
   // Ctrl/Cmd+K: new chat. "/": focus the input.
   useEffect(() => {
@@ -75,7 +107,6 @@ export function App() {
 
   return (
     <div className="app">
-      <GlowGrid visible={showHome || view === 'how'} />
       <Sidebar
         threads={chat.threads}
         activeId={chat.threadId}
@@ -88,41 +119,52 @@ export function App() {
           void chat.openThread(id);
         }}
         onDelete={(id) => void chat.removeThread(id)}
-        onHow={() => {
-          setView('how');
-          setDrawer(false);
-          window.history.pushState(null, '', '#/how');
-          mainRef.current?.scrollTo({ top: 0 });
-        }}
+        onHow={openHow}
         howActive={view === 'how'}
       />
 
       <main className="main" ref={mainRef} onScroll={onScroll}>
         <header className="topbar">
-          <button className="icon-btn" onClick={() => setDrawer(true)} aria-label="Open chats">
-            <svg viewBox="0 0 20 20" aria-hidden>
-              <path d="M3 6h14M3 10h14M3 14h9" />
-            </svg>
-          </button>
-          <span className="topbar__brand">
-            <Logo size={18} />
-            {BRAND}
-          </span>
-          <button className="icon-btn" onClick={newChat} aria-label="New chat">
-            <svg viewBox="0 0 20 20" aria-hidden>
-              <path d="M10 4v12M4 10h12" />
-            </svg>
-          </button>
+          <div className="topbar__left">
+            <button className="icon-btn" onClick={() => setDrawer(true)} aria-label="Open chats">
+              <svg viewBox="0 0 20 20" aria-hidden>
+                <path d="M3 6h14M3 10h14M3 14h14" />
+              </svg>
+            </button>
+            <span className="topbar__brand">
+              <Logo size={18} />
+              {BRAND}
+            </span>
+          </div>
+          <nav className="topbar__links">
+            <button className={view === 'how' ? 'is-active' : ''} onClick={openHow}>
+              How it works
+            </button>
+            <a href={PORTFOLIO_URL} target="_blank" rel="noreferrer">
+              Portfolio <ArrowUpRight />
+            </a>
+            <button className="icon-btn icon-btn--new" onClick={newChat} aria-label="New chat">
+              <svg viewBox="0 0 20 20" aria-hidden>
+                <path d="M10 4v12M4 10h12" />
+              </svg>
+            </button>
+          </nav>
         </header>
+
+        {offline && (
+          <div className="offline" role="status">
+            Can’t reach the server. Start it with <code>npm run dev</code>; this page reconnects on its own.
+          </div>
+        )}
 
         {view === 'how' ? (
           <HowItWorks />
         ) : showHome ? (
           <Home ref={composerRef} health={health} busy={chat.busy} onSend={send} onStop={chat.stop} />
         ) : (
-          <div className="thread-view view">
+          <div className="thread-view fade-in">
             <div className="chat">
-              {chat.loadError && <div className="alert">{chat.loadError}</div>}
+              {chat.loadError && <div className="error">{chat.loadError}</div>}
               {chat.turns.map((t) => (
                 <TurnView key={t.key} turn={t} onRetry={chat.retry} />
               ))}
@@ -132,14 +174,14 @@ export function App() {
                 <Composer
                   ref={composerRef}
                   busy={chat.busy}
-                  disabled={health ? !health.ok : false}
+                  disabled={offline || (health ? !health.ok : false)}
                   onSend={send}
                   onStop={chat.stop}
                   autoFocus
                   placeholder="Ask a follow-up…"
                   maxWords={health?.limits.maxInputWords}
                 />
-                <p className="dock__hint">Scout searches the live web and can still be wrong. Check the sources.</p>
+                <p className="dock__hint">Answers come from web pages and can be wrong. Check the sources.</p>
               </div>
             </div>
           </div>

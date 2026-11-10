@@ -2,11 +2,7 @@ import type { Source } from '../../shared/types.js';
 import { domainOf, normalizeUrl } from '../lib/text.js';
 import type { SearchHit } from '../search/types.js';
 
-/**
- * Assigns citation numbers. Numbers are unique per thread: a page cited as [4] earlier in
- * the conversation stays [4] if a later search finds it again, so old answers keep making
- * sense and the model can re-cite a source without searching for it again.
- */
+// Citation numbers are per thread, so a page keeps the same [n] across answers.
 export class SourceRegistry {
   private readonly byUrl = new Map<string, Source>();
   private readonly byId = new Map<number, Source>();

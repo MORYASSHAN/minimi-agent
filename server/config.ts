@@ -30,7 +30,7 @@ const EnvSchema = z.object({
   // Usage limits, so one key can't be drained by long questions, long answers or heavy use.
   MAX_INPUT_WORDS: z.coerce.number().int().positive().default(300),
   MAX_ANSWER_TOKENS: z.coerce.number().int().positive().default(1_200),
-  DAILY_MESSAGE_LIMIT: z.coerce.number().int().positive().default(60),
+  DAILY_MESSAGE_LIMIT: z.coerce.number().int().positive().default(100),
   MAX_SEARCH_QUERIES: z.coerce.number().int().min(1).max(6).default(4),
 
   // MongoDB. Leave empty to run an embedded MongoDB persisted in ./.data/mongo.

@@ -11,12 +11,8 @@ interface Options {
   reasoningEffort?: 'none' | 'minimal' | 'low' | 'medium' | 'high';
 }
 
-/**
- * Adapter for OpenAI and any OpenAI-compatible Chat Completions endpoint
- * (Groq, OpenRouter, Gemini's compat endpoint, Ollama, vLLM...).
- * Chat Completions rather than the Responses API on purpose: it is the one surface every
- * compatible provider implements, so swapping to a free model is a .env change.
- */
+// Chat Completions rather than the Responses API: it is the one API every
+// OpenAI-compatible provider implements.
 export class OpenAIChatModel implements ChatModel {
   readonly model: string;
   private readonly client: OpenAI;

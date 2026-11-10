@@ -80,10 +80,7 @@ export function parseWebSearchArgs(raw: string, maxQueries: number): WebSearchAr
 const CONTENT_CHARS = { fast: 700, deep: 2_400 } as const;
 const TOTAL_CHARS = 36_000;
 
-/**
- * Register hits as numbered sources and render them compactly for the model.
- * Budgeted so a 6-query deep search can't blow up the context window.
- */
+// Numbers the hits and renders them for the model, within a character budget.
 export function renderResults(
   args: WebSearchArgs,
   outcome: SearchOutcome,

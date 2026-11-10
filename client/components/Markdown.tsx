@@ -29,7 +29,7 @@ export const Markdown = memo(function Markdown({ text, sources }: { text: string
         const source = byId.get(id);
         if (!source) return <span className="cite cite--missing">{id}</span>;
         return (
-          <a className="cite" href={source.url} target="_blank" rel="noreferrer" title={`${source.title} — ${source.domain}`}>
+          <a className="cite" href={source.url} target="_blank" rel="noreferrer" title={`${source.title} · ${source.domain}`}>
             {id}
           </a>
         );

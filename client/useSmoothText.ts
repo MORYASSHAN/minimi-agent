@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-/**
- * Tokens arrive in bursts (network chunks, then one render per frame). Revealing them at a
- * steady, adaptive pace makes streaming read smoothly: it catches up within ~12 frames
- * whatever the backlog, so it never lags far behind the model.
- */
+// Reveals streamed text at a steady pace. Catches up within ~12 frames whatever the backlog.
 export function useSmoothText(target: string, animate: boolean): string {
   const [shown, setShown] = useState(animate ? '' : target);
   const shownRef = useRef(shown);
